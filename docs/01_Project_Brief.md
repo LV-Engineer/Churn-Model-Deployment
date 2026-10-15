@@ -21,6 +21,8 @@ Repo: [GitHub link]
 | --- | --- |
 | API | FastAPI, Pydantic (input validation, response schema) |
 | Packaging | Docker (Dockerfile, docker run / compose) |
+| Database | PostgreSQL in docker compose (cleaned training data) |
+| Data formats | CSV and parquet (pyarrow) for upload and export |
 | Testing | pytest (API tests, input validation, model smoke test) |
 | Code quality | mypy, type hints |
 | CI | GitHub Actions: tests + mypy on each push |
@@ -33,9 +35,11 @@ Repo: [GitHub link]
 # Approach
 
 * Export model and pipeline from Project 1 (joblib / torch.save) with fixed versions
-* Endpoint `/predict` (single customer) and `/health`
+* Endpoints: `/health`, `/predict` (single customer), `/train`, `POST /data` (CSV or parquet, raw Kaggle format, cleaned and stored in the database), `GET /data/export` (CSV or parquet), `DELETE /data` (clear the training data)
+* Training reads the cleaned data from the database; the exported data is the reference set for drift
 * Pydantic schemas with validation errors for bad input
 * Dockerfile: small image, pinned requirements
+* PostgreSQL in docker compose: store the cleaned training data
 * pytest: valid input, invalid input, edge cases, prediction range
 * CI: run pytest and mypy on every push
 * Drift: simulate shifted data, build an Evidently report, define alert rule

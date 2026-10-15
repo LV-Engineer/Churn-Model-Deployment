@@ -16,39 +16,49 @@ Goal: keep the **full history** of the project (many small commits that tell the
 | Plan step | Suggested branch |
 | --- | --- |
 | 1 Export model and pipeline | `feat/model-export` |
-| 2 FastAPI app | `feat/api` |
-| 3 pytest tests | `test/api-tests` |
-| 4 Type hints and mypy | `chore/mypy` |
-| 5 Dockerfile | `feat/docker` |
-| 6 GitHub Actions | `chore/ci` |
-| 7 Drift monitoring | `feat/drift-monitoring` |
-| 8 MLflow, DVC (optional) | `feat/mlflow-dvc` |
-| 9 Redis, Grafana (optional) | `feat/cache-dashboard` |
-| 10 README | `docs/final-readme` |
+| 2 App skeleton and stubs | `chore/app-skeleton` |
+| 3 Docker and PostgreSQL | `feat/docker` |
+| 4 Implement the stubs | `feat/api` |
+| 5 pytest tests | `test/api-tests` |
+| 6 Type hints and mypy | `chore/mypy` |
+| 7 GitHub Actions | `chore/ci` |
+| 8 Drift monitoring | `feat/drift-monitoring` |
+| 9 MLflow, DVC (optional) | `feat/mlflow-dvc` |
+| 10 Redis, Grafana (optional) | `feat/cache-dashboard` |
+| 11 README | `docs/final-readme` |
 
 Other examples: `fix/schema-validation`, `chore/pin-requirements`, `refactor/split-routers`.
 
-Flow for each step:
+Flow for each step. `main` requires a Pull Request, so the merge happens on GitHub, not locally:
 
 ```bash
 git switch main
 git pull
 git switch -c feat/api               # create the step branch
 # ... work, several commits ...
-git push -u origin feat/api          # back up the branch on GitHub
+git push -u origin feat/api          # push the branch to GitHub
+```
+
+Then on GitHub: open a Pull Request from the branch into `main` and merge it with **Create a merge commit**. After that:
+
+```bash
 git switch main
-git merge --no-ff feat/api           # keep the branch visible in history
-git push
+git pull                             # get the merge commit
 git branch -d feat/api               # optional cleanup
 ```
 
-Why `--no-ff`: it creates a merge commit, so the graph shows "this group of commits was the API step". With a fast-forward merge the branch structure disappears.
+Why a merge commit (the `--no-ff` idea): the graph shows "this group of commits was the API step". Squash or rebase merges would remove that structure, so only **Merge** is allowed as the merge method.
 
-Optional: open a Pull Request on GitHub for each branch and merge it there. It leaves a readable record of the decisions, even for a solo project.
+A Pull Request also leaves a readable record of the decisions, even for a solo project.
 
 ### Protection on GitHub
 
-A ruleset on the default branch (`main`) enables **Restrict deletions** and **Block force pushes**, so the history of `main` cannot be rewritten or removed. Feature branches are not protected and can be deleted freely after merging.
+A ruleset on the default branch (`main`) enables:
+
+- **Restrict deletions** and **Block force pushes**: the history of `main` cannot be rewritten or removed.
+- **Require a pull request before merging** (0 required approvals, it is a solo project): nothing reaches `main` by a direct push, including an accidental push from a local branch.
+
+Feature branches are not protected and can be deleted freely after merging.
 
 ## 3. Commit messages
 
