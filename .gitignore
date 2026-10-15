@@ -1,0 +1,16 @@
+# Data
+data/*
+!data/README.md
+
+# Secrets and local config
+.env
+
+# Notebooks and models
+.ipynb_checkpoints/
+models/
+*.pt
+*.pkl
+
+# Virtual environments
+.venv
+__pycache__/
