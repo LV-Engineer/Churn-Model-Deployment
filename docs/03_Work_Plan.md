@@ -7,7 +7,7 @@
 - [x] 5. Redis in docker compose: cache the loaded model, rate limiter
 - [x] 6. Write pytest tests (valid, invalid, edge cases)
 - [x] 7. Add type hints and run mypy
-- [ ] 8. GitHub Actions: pytest + mypy on push
+- [x] 8. GitHub Actions: pytest + mypy on push
 - [ ] 9. Simulate drifted data, Evidently report, alert rule
 - [ ] 10. MLflow tracking, DVC for data/model
 - [ ] 11. Grafana dashboard
