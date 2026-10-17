@@ -1,4 +1,6 @@
+import io
 import json
+import urllib.error
 from typing import Any
 
 import pytest
@@ -54,7 +56,7 @@ def test_measure_skips_warmup_requests(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_main_prints_a_summary(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
-    monkeypatch.setattr("app.monitoring.latency.measure", lambda url, requests, warmup: [1.0, 2.0, 3.0])
+    monkeypatch.setattr("app.monitoring.latency.measure", lambda url, requests, warmup, delay: [1.0, 2.0, 3.0])
     monkeypatch.setattr("sys.argv", ["latency", "--requests", "3", "--warmup", "0"])
 
     latency.main()
@@ -62,3 +64,56 @@ def test_main_prints_a_summary(monkeypatch: pytest.MonkeyPatch, capsys: pytest.C
     out = capsys.readouterr().out
     assert "p95" in out
     assert "mean" in out
+
+
+def _rate_limited(request: Any) -> None:
+    raise urllib.error.HTTPError(request.full_url, 429, "Too Many Requests", {}, io.BytesIO())  # type: ignore[arg-type]
+
+
+def test_measure_gives_up_when_the_rate_limit_does_not_clear(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("app.monitoring.latency.urllib.request.urlopen", _rate_limited)
+    monkeypatch.setattr("app.monitoring.latency.time.sleep", lambda seconds: None)
+
+    with pytest.raises(RuntimeError, match="Rate limit"):
+        latency.measure("http://example/predict", requests=1, warmup=0)
+
+
+def test_measure_waits_and_retries_after_a_429(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = {"count": 0}
+    waits: list[float] = []
+
+    def flaky(request: Any) -> FakeResponse:
+        calls["count"] += 1
+        if calls["count"] == 1:
+            _rate_limited(request)
+        return FakeResponse()
+
+    monkeypatch.setattr("app.monitoring.latency.urllib.request.urlopen", flaky)
+    monkeypatch.setattr("app.monitoring.latency.time.sleep", waits.append)
+
+    durations = latency.measure("http://example/predict", requests=2, warmup=0)
+
+    assert len(durations) == 2
+    assert calls["count"] == 3
+    assert waits == [latency.RATE_LIMIT_WAIT]
+
+
+def test_main_exits_with_a_message_on_rate_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    def rate_limited(url: str, requests: int, warmup: int, delay: float) -> list[float]:
+        raise RuntimeError("Rate limit reached (429)")
+
+    monkeypatch.setattr("app.monitoring.latency.measure", rate_limited)
+    monkeypatch.setattr("sys.argv", ["latency"])
+
+    with pytest.raises(SystemExit, match="Rate limit"):
+        latency.main()
+
+
+def test_measure_pauses_between_requests(monkeypatch: pytest.MonkeyPatch) -> None:
+    pauses: list[float] = []
+    monkeypatch.setattr("app.monitoring.latency.urllib.request.urlopen", lambda request: FakeResponse())
+    monkeypatch.setattr("app.monitoring.latency.time.sleep", pauses.append)
+
+    latency.measure("http://example/predict", requests=3, warmup=0, delay=0.5)
+
+    assert pauses == [0.5, 0.5, 0.5]
