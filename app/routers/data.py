@@ -1,6 +1,6 @@
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, Query, Response
 from sqlalchemy.orm import Session
 
 from app.schemas.data import UploadResponse, DeleteResponse
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/data", tags=["data"])
 
 @router.post("/load", response_model=UploadResponse)
 @limiter.limit("60/minute")
-def load_data(file: UploadFile, db: Session = Depends(get_db)) -> UploadResponse:
+def load_data(request: Request, file: UploadFile, db: Session = Depends(get_db)) -> UploadResponse:
     try:
         return DataService(db).upload(file)
     except (ValueError, KeyError) as e:
@@ -21,6 +21,7 @@ def load_data(file: UploadFile, db: Session = Depends(get_db)) -> UploadResponse
 @router.get("/export")
 @limiter.limit("60/minute")
 def export_data(
+    request: Request,
     fmt: Literal["csv", "parquet"] = Query("csv", alias="format"),
     db: Session = Depends(get_db),
 ) -> Response:
@@ -34,5 +35,5 @@ def export_data(
 
 @router.delete("/clear", response_model=DeleteResponse)
 @limiter.limit("60/minute")
-def clear_data(db: Session = Depends(get_db)) -> DeleteResponse:
+def clear_data(request: Request, db: Session = Depends(get_db)) -> DeleteResponse:
     return DataService(db).clear()

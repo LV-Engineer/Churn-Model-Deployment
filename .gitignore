@@ -9,3 +9,10 @@
 # Virtual environments
 .venv
 __pycache__/
+# Tests and coverage
+.pytest_cache/
+.coverage_data/
+htmlcov/
+coverage.xml
+coverage.json
+lcov.info
