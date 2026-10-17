@@ -8,7 +8,7 @@
 - [x] 6. Write pytest tests (valid, invalid, edge cases)
 - [x] 7. Add type hints and run mypy
 - [x] 8. GitHub Actions: pytest + mypy on push
-- [ ] 9. Simulate drifted data, Evidently report, alert rule
+- [x] 9. Simulate drifted data, Evidently report, alert rule
 - [ ] 10. MLflow tracking, DVC for data/model
 - [ ] 11. Grafana dashboard
 - [ ] 12. README with structure and run instructions

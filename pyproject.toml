@@ -5,6 +5,7 @@ description = "Serving and monitoring a customer churn model"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "evidently>=0.7.23",
     "fastapi>=0.143.1",
     "pandas>=3.0.6",
     "psycopg[binary]>=3.3.6",
@@ -48,5 +49,5 @@ plugins = ["pydantic.mypy"]
 files = ["app"]
 
 [[tool.mypy.overrides]]
-module = ["sklearn.*", "joblib.*"]
+module = ["sklearn.*", "joblib.*", "evidently.*"]
 ignore_missing_imports = true

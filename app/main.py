@@ -3,13 +3,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.core.db import engine
 from app.models import data as _data, model as _model  # noqa: F401
 from app.models.base import Base
-from app.routers import data, health, model
+from app.routers import data, health, model, monitoring
 from app.core.limiter import limiter
 
 @asynccontextmanager
@@ -28,3 +27,4 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 app.include_router(health.router)
 app.include_router(data.router)
 app.include_router(model.router)
+app.include_router(monitoring.router)
