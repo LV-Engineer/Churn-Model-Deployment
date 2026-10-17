@@ -55,6 +55,10 @@ A service around the customer churn model from [Project 1](https://github.com/LV
 
 The `internet_service` shift was not flagged: it is too small for the test Evidently uses for that column.
 
+The Grafana dashboard after a few test predictions, a training run and the drift check above (panel titles are in Ukrainian: probability distribution (cumulative buckets), p95 latency, drift alert, total predictions, model ROC-AUC, 5xx errors, contact share, drift share, requests per second):
+
+![Grafana dashboard](docs/images/grafana_dashboard.webp)
+
 **Limitations**
 - The deployment is local (`docker compose`); nothing is deployed to a cloud.
 - The drift is simulated on one dataset; there is no real production traffic, and the "no drift" check compares the data with itself.
