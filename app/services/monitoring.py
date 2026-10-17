@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.monitoring.drift import MONITORED_COLUMNS, detect_drift, drift_report_html
 from app.repositories.data import DataRepository
 from app.schemas.monitoring import DriftResponse
+from app.core.metrics import DRIFT_ALERT, DRIFT_SHARE
 
 class MonitoringService:
     def __init__(self, db: Session) -> None:
@@ -14,6 +15,8 @@ class MonitoringService:
 
     def check_drift(self, file: UploadFile) -> DriftResponse:
         result = detect_drift(self._reference_frame(), self._read(file))
+        DRIFT_SHARE.set(result.drift_share)
+        DRIFT_ALERT.set(1 if result.alert else 0)
         return DriftResponse(**asdict(result))
 
     def drift_report(self, file: UploadFile) -> str:

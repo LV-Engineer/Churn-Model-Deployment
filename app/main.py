@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.core.db import engine
 from app.models import data as _data, model as _model  # noqa: F401
@@ -20,6 +21,8 @@ async def rate_limit_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(status_code=429, content={"detail": "Too many requests"})
 
 app = FastAPI(title="Churn Prediction API", lifespan=lifespan)
+
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
