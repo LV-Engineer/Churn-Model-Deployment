@@ -15,4 +15,16 @@ Log checks, measurements and decisions for deployment and monitoring.
 
 # Conclusions
 
-[What worked, what broke, what to improve]
+**What worked**
+- The same logistic regression as in Project 1 reaches ROC-AUC 0.848 when trained inside the service on data from PostgreSQL.
+- The drift rule did not alert on unchanged data and alerted on the simulated shift through the key features (rows 1 and 2).
+
+**What broke, and how it was found**
+- The rate limiter decorators were added without the `request` argument that `slowapi` needs, so the application did not start; the first test run caught it.
+- `clean()` crashed on a numeric `Total Charges` (for example from parquet); a test for numeric input caught it.
+- MLflow logging failed silently because the sklearn flavor needs `skops`, which the lightweight client does not include; the `try/except` around the logging hid it until the logged run was checked in a test.
+
+**What to improve**
+- Measure the latency of `POST /predict` and record it here.
+- Check the drift rule on a separate sample instead of the same data, and find the shift strength where the alert starts.
+- Add authentication, migrations and a retraining trigger on drift.
