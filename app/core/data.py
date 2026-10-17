@@ -8,7 +8,7 @@ def clean(df: pd.DataFrame) -> pd.DataFrame:
 
     df[CAT_COLS] = df[CAT_COLS].astype("category")
 
-    df['Total Charges'] = pd.to_numeric(df['Total Charges'].str.strip(), errors='coerce').fillna(0)
+    df['Total Charges'] = pd.to_numeric(df['Total Charges'].astype(str).str.strip(), errors='coerce').fillna(0)
     assert df["Total Charges"].ge(0).all()
 
     return df
