@@ -57,7 +57,19 @@ services:
       mlflow:
         condition: service_started
 
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
 volumes:
   pgdata:
   models:
   mlflow_artifacts:
+  prometheus_data:

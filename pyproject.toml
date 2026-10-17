@@ -9,6 +9,7 @@ dependencies = [
     "fastapi>=0.143.1",
     "mlflow-skinny>=3.17.1",
     "pandas>=3.0.6",
+    "prometheus-fastapi-instrumentator>=8.1.0",
     "psycopg[binary]>=3.3.6",
     "pyarrow>=26.0.0",
     "pydantic-settings>=2.16.0",

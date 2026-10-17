@@ -25,6 +25,7 @@ from app.core.train import fit_model
 from app.models.model import ModelRun
 from app.core.redis import redis_client
 from app.core.settings import settings
+from app.core.metrics import MODEL_ROC_AUC, PREDICTED_PROBABILITY, PREDICTIONS, TRAINING_RUNS
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,10 @@ class ModelService:
             roc_auc=auc,
             model_path=filename,
         ))
+
+        TRAINING_RUNS.inc()
+        MODEL_ROC_AUC.set(auc)
+
         self._log_to_mlflow(run_id, pipeline, n_rows, auc)
         return TrainResponse(
             run_id=run.id, trained_at=run.trained_at, n_rows=run.n_rows, roc_auc=run.roc_auc
@@ -83,7 +88,11 @@ class ModelService:
         pipeline = self._load(run)
         row = pd.DataFrame([request.model_dump(by_alias=True)])
         proba = float(pipeline.predict_proba(row)[0, 1])
-        return PredictionResponse(churn_probability=proba, contact=proba >= THRESHOLD)
+
+        contact = proba >= THRESHOLD
+        PREDICTED_PROBABILITY.observe(proba)
+        PREDICTIONS.labels(contact=str(contact).lower()).inc()
+        return PredictionResponse(churn_probability=proba, contact=contact)
 
     @staticmethod
     def _load(run: ModelRun) -> Pipeline:
