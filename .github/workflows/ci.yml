@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  mypy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +16,15 @@ jobs:
           enable-cache: true
       - run: uv sync
       - run: uv run mypy
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync
       - run: uv run pytest --cov=app --cov-report=term-missing --cov-report=xml
       - uses: actions/upload-artifact@v4
         if: always()
