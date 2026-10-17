@@ -1,11 +1,6 @@
 import pandas as pd
-from pathlib import Path
 
-from app.core.config import DROP_COLS, CAT_COLS
-
-def load_raw(path: Path) -> pd.DataFrame:
-    """Read the raw CSV as is, without any cleaning."""
-    return pd.read_csv(path)
+from app.core.constants import DROP_COLS, CAT_COLS
 
 def clean(df: pd.DataFrame) -> pd.DataFrame:
     """Drop useless/leaky columns, fix dtypes. Returns a new DataFrame."""

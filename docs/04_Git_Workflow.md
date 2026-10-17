@@ -19,13 +19,14 @@ Goal: keep the **full history** of the project (many small commits that tell the
 | 2 App skeleton and stubs | `chore/app-skeleton` |
 | 3 Docker and PostgreSQL | `feat/docker` |
 | 4 Implement the stubs | `feat/api` |
-| 5 pytest tests | `test/api-tests` |
-| 6 Type hints and mypy | `chore/mypy` |
-| 7 GitHub Actions | `chore/ci` |
-| 8 Drift monitoring | `feat/drift-monitoring` |
-| 9 MLflow, DVC (optional) | `feat/mlflow-dvc` |
-| 10 Redis, Grafana (optional) | `feat/cache-dashboard` |
-| 11 README | `docs/final-readme` |
+| 5 Redis model cache | `feat/redis-cache` |
+| 6 pytest tests | `test/api-tests` |
+| 7 Type hints and mypy | `chore/mypy` |
+| 8 GitHub Actions | `chore/ci` |
+| 9 Drift monitoring | `feat/drift-monitoring` |
+| 10 MLflow, DVC (optional) | `feat/mlflow-dvc` |
+| 11 Grafana (optional) | `feat/grafana` |
+| 12 README | `docs/final-readme` |
 
 Other examples: `fix/schema-validation`, `chore/pin-requirements`, `refactor/split-routers`.
 
