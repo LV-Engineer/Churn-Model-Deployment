@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import fakeredis
+import mlflow
 import pytest
 from fastapi.testclient import TestClient
 
@@ -49,6 +50,30 @@ class TestTrain:
 
         assert first["run_id"] != second["run_id"]
         assert len(list(models_dir.glob("churn_model_*.joblib"))) == 2
+
+
+class TestMlflowTracking:
+    def test_training_run_is_logged_to_mlflow(self, loaded_client: TestClient) -> None:
+        body = loaded_client.post("/train").json()
+
+        runs = mlflow.search_runs(experiment_names=["churn-model"])
+
+        assert len(runs) == 1
+        assert runs.iloc[0]["tags.mlflow.runName"] == body["run_id"]
+        assert runs.iloc[0]["metrics.roc_auc"] == pytest.approx(body["roc_auc"])
+        assert runs.iloc[0]["params.n_rows"] == "300"
+
+    def test_training_succeeds_when_mlflow_is_unavailable(
+        self, loaded_client: TestClient, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def broken(*args: object, **kwargs: object) -> None:
+            raise ConnectionError("MLflow is down")
+
+        monkeypatch.setattr("app.services.model.mlflow.start_run", broken)
+
+        response = loaded_client.post("/train")
+
+        assert response.status_code == 200
 
 
 class TestPredict:

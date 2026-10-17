@@ -1,5 +1,6 @@
 import io
 import os
+import tempfile
 from collections.abc import Generator
 from pathlib import Path
 
@@ -8,6 +9,8 @@ os.environ.setdefault("POSTGRES_PASSWORD", "placeholder")
 os.environ.setdefault("POSTGRES_DB", "placeholder")
 os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://placeholder:placeholder@localhost:5432/placeholder")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+os.environ.setdefault("MLFLOW_TRACKING_URI", "file:" + tempfile.mkdtemp())
+os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
 
 import fakeredis
 import numpy as np
@@ -23,6 +26,7 @@ from app.core.constants import FEATURE_TO_DB
 from app.core.data import clean
 from app.core.db import get_db
 from app.core.limiter import limiter
+from app.core.settings import settings
 from app.main import app
 from app.models.base import Base
 
@@ -174,6 +178,12 @@ def fake_redis(monkeypatch: pytest.MonkeyPatch) -> fakeredis.FakeRedis:
 def models_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr("app.services.model.MODELS_DIR", tmp_path)
     return tmp_path
+
+
+@pytest.fixture(autouse=True)
+def mlflow_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every test logs to its own empty MLflow store."""
+    monkeypatch.setattr(settings, "mlflow_tracking_uri", f"file:{tmp_path / 'mlruns'}")
 
 
 @pytest.fixture

@@ -24,7 +24,7 @@ Goal: keep the **full history** of the project (many small commits that tell the
 | 7 Type hints and mypy | `chore/mypy` |
 | 8 GitHub Actions | `chore/ci` |
 | 9 Drift monitoring | `feat/drift-monitoring` |
-| 10 MLflow, DVC (optional) | `feat/mlflow-dvc` |
+| 10 MLflow tracking | `feat/mlflow` |
 | 11 Grafana (optional) | `feat/grafana` |
 | 12 README | `docs/final-readme` |
 
