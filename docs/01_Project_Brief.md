@@ -28,8 +28,8 @@ Repo: [GitHub link]
 | CI | GitHub Actions: tests + mypy on each push |
 | Drift monitoring | Evidently (data drift report: reference vs new data) |
 | Version control | Git, GitHub |
-| Experiment tracking | MLflow (log runs and model from Project 1) |
-| Data/model versioning | DVC |
+| Experiment tracking | MLflow (log each training run and model; PostgreSQL backend) |
+| Data/model versioning | `model_runs` table and versioned model files (DVC is not used: the data lives in PostgreSQL) |
 | Cache | Redis (cache of the loaded model) |
 | Dashboard | Grafana - optional |
 
