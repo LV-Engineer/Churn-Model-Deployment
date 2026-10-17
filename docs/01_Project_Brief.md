@@ -49,7 +49,7 @@ Based on: Project 1 (https://github.com/LV-Engineer/Churn-Prediction)
 
 # Results
 
-* Latency: TODO, measure with `uv run python -m app.monitoring.latency` and write the mean and p95 here
+* Latency: `POST /predict` mean 29.3 ms, p95 40.7 ms (200 sequential requests from the host over localhost, model cached in Redis; not a load test)
 * Tests: 83 tests, 99% line coverage of `app`, `mypy --strict` clean
 * Drift detected on simulated shift: yes, 3 of 18 columns (`tenure_months`, `contract`, `monthly_charges`); the alert comes from the key-feature rule; no alert on unchanged data
 * Limitations: local deployment only, simulated drift on one dataset, no authentication (only rate limiting), no migrations, metrics reset on restart

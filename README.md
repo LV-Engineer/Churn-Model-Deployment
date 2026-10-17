@@ -44,7 +44,7 @@ A service around the customer churn model from [Project 1](https://github.com/LV
 ## Results
 
 - **Model:** ROC-AUC 0.848 on a held-out 20% split of the stored Telco data (shown by the dashboard after training; Project 1 reported 0.847 on its own test set, so the service reproduces the notebook result). The model is the same as in Project 1: simple and explainable, not a new modelling result.
-- **Latency of `POST /predict`:** TODO: run `uv run python -m app.monitoring.latency` against the running stack and write the mean and p95 here.
+- **Latency of `POST /predict`:** mean 29.3 ms, p50 27.3 ms, p95 40.7 ms, p99 59.9 ms (200 sequential requests after 5 warm-up requests, `uv run python -m app.monitoring.latency --requests 200 --delay 1.1`). Measured from the host over `localhost` against the stack in Docker Compose, with the model already in the Redis cache and the rate limiter enabled, so it includes the HTTP call, input validation, reading the model from Redis and the prediction. One request at a time on one machine, not a load test.
 - **Tests:** 83 tests, 99% line coverage of `app` (`uv run pytest --cov=app`), `mypy --strict` clean on 37 source files.
 - **Drift on a simulated shift** ([experiment log](docs/02_Experiment_Log.md)):
 
