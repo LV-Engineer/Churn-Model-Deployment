@@ -1,11 +1,25 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.schemas.model import TrainResponse, PredictionResponse, PredictionRequest
+from app.services.model import ModelService
+from app.core.db import get_db
+from app.core.limiter import limiter
 
 router = APIRouter(tags=["model"])
 
-@router.post("/train")
-def train_model():
-    pass
+@router.post("/train", response_model=TrainResponse)
+@limiter.limit("5/minute")
+def train_model(db: Session = Depends(get_db)) -> TrainResponse:
+    try:
+        return ModelService(db).train()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/predict")
-def make_prediction():
-    pass
+@router.post("/predict", response_model=PredictionResponse)
+@limiter.limit("60/minute")
+def make_prediction(request: PredictionRequest, db: Session = Depends(get_db)) -> PredictionResponse:
+    try:
+        return ModelService(db).predict(request)
+    except LookupError as e:
+        raise HTTPException(status_code=503, detail=str(e))

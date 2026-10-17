@@ -1,16 +1,14 @@
-import joblib
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-from app.core.config import MODEL_PATH, RAW_PATH, SEED, TARGET
-from app.core.data import clean, load_raw
+from app.core.constants import SEED, TARGET
 from app.core.features import build_preprocessor
 
-def train() -> float:
-    """Train the model, save it to MODEL_PATH, return test ROC-AUC."""
-    df = clean(load_raw(RAW_PATH))
+def fit_model(df: pd.DataFrame) -> tuple[Pipeline, float]:
+    """Fit the pipeline on cleaned data, return it with the test ROC-AUC."""
     X = df.drop(columns=[TARGET])
     y = df[TARGET]
 
@@ -24,7 +22,5 @@ def train() -> float:
     ])
     model.fit(X_train, y_train)
 
-    MODEL_PATH.parent.mkdir(exist_ok=True)
-    joblib.dump(model, MODEL_PATH)
-
-    return float(roc_auc_score(y_test, model.predict_proba(X_test)[:, 1]))
+    auc = float(roc_auc_score(y_test, model.predict_proba(X_test)[:, 1]))
+    return model, auc

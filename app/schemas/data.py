@@ -1,7 +1,9 @@
 from pydantic import BaseModel
 
 class UploadResponse(BaseModel):
-    pass
+    rows_added: int
+    rows_skipped: int
+
 
 class DeleteResponse(BaseModel):
-    pass
+    rows_deleted: int

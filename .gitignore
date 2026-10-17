@@ -1,13 +1,8 @@
-# Data
-data/*
-!data/README.md
-
 # Secrets and local config
 .env
 
-# Notebooks and models
+# Notebooks and model files
 .ipynb_checkpoints/
-/models/
 *.pt
 *.pkl
 
