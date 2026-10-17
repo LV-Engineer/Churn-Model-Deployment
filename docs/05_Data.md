@@ -1,6 +1,6 @@
 # Data
 
-The data files are **not committed** (`data/*` is in `.gitignore`). This README is the only tracked file in the folder.
+The data files are **not committed** and are not stored in the repository. The raw file is uploaded to the running API, which cleans it and stores it in PostgreSQL.
 
 ## Source
 
@@ -12,24 +12,24 @@ The data files are **not committed** (`data/*` is in `.gitignore`). This README 
 - Origin (per the Kaggle description): IBM Community, [Telco Customer Churn](https://community.ibm.com/community/user/businessanalytics/blogs/steven-macko/2019/07/11/telco-customer-churn-1113), part of the IBM Cognos Analytics sample datasets
 - Original file: `Telco_customer_churn.xlsx` (sheet `Telco_Churn`)
 
-## How to reproduce
+## How to load the data
 
 1. Download the dataset from the link above (a Kaggle login is required).
-2. Convert the sheet to CSV and place it at `data/raw/Telco_customer_churn.csv`:
+2. Convert the sheet to CSV (or parquet). Example for CSV:
 
 ```bash
-uvx --with openpyxl --with pandas python -I -c "import pandas as pd; pd.read_excel('data/raw/Telco_customer_churn.xlsx').to_csv('data/raw/Telco_customer_churn.csv', index=False)"
+uvx --with openpyxl --with pandas python -I -c "import pandas as pd; pd.read_excel('Telco_customer_churn.xlsx').to_csv('Telco_customer_churn.csv', index=False)"
 ```
 
-Files in `data/raw/` are never edited by hand. All cleaning is done in code (`clean()` in `src/churn/data.py`) every time the data is loaded, so no cleaned copy is stored.
+3. Start the services with `docker compose up --build` and upload the file with `POST /data/load` (for example in `/docs`). The file can be anywhere on your computer. The raw Kaggle format (33 columns) is the only accepted input.
 
-## Structure
+The raw file is never edited by hand. All cleaning is done in code (`clean()` in `app/core/data.py`) on every upload, and only the cleaned rows are stored in the `customers` table. Rows whose `customer_id` already exists are skipped.
 
-```
-data/
-  README.md     # this file (tracked)
-  raw/          # original data (ignored)
-```
+## Where the data lives
+
+- **PostgreSQL** (`customers` table, Docker volume `pgdata`): cleaned training data.
+- **`GET /data/export?format=csv|parquet`**: download the stored data.
+- **`DELETE /data/clear`**: remove all stored data.
 
 ## Facts about the raw file
 

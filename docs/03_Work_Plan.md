@@ -3,11 +3,12 @@
 - [x] 1. Finish Project 1 and export model and pipeline
 - [x] 2. App skeleton: stubs for routers, services, repositories, models and schemas
 - [x] 3. Dockerfile and docker compose with PostgreSQL, build and run locally
-- [ ] 4. Implement the stubs: /health, /predict, POST /data (CSV or parquet, cleaned), GET /data/export, DELETE /data, POST /train; measure latency
-- [ ] 5. Write pytest tests (valid, invalid, edge cases)
-- [ ] 6. Add type hints and run mypy
-- [ ] 7. GitHub Actions: pytest + mypy on push
-- [ ] 8. Simulate drifted data, Evidently report, alert rule
-- [ ] 9. Optional: MLflow tracking, DVC for data/model
-- [ ] 10. Optional: Redis cache, Grafana dashboard
-- [ ] 11. README with structure and run instructions
+- [ ] 4. Implement the stubs: /health, /predict, POST /data (CSV or parquet, cleaned), GET /data/export, DELETE /data, POST /train (each run saves a versioned model file and a row in the database)
+- [ ] 5. Redis in docker compose: cache the loaded model, measure latency with and without the cache
+- [ ] 6. Write pytest tests (valid, invalid, edge cases)
+- [ ] 7. Add type hints and run mypy
+- [ ] 8. GitHub Actions: pytest + mypy on push
+- [ ] 9. Simulate drifted data, Evidently report, alert rule
+- [ ] 10. Optional: MLflow tracking, DVC for data/model
+- [ ] 11. Optional: Grafana dashboard
+- [ ] 12. README with structure and run instructions

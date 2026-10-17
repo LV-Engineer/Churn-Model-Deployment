@@ -30,7 +30,8 @@ Repo: [GitHub link]
 | Version control | Git, GitHub |
 | Experiment tracking | MLflow (log runs and model from Project 1) |
 | Data/model versioning | DVC |
-| Cache / logging | Redis (cache predictions), Grafana (dashboard) |
+| Cache | Redis (cache of the loaded model) |
+| Dashboard | Grafana - optional |
 
 # Approach
 
