@@ -11,6 +11,7 @@
 __pycache__/
 # Tests and coverage
 .pytest_cache/
+.mypy_cache/
 .coverage_data/
 htmlcov/
 coverage.xml
