@@ -19,6 +19,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
+from app.core.constants import FEATURE_TO_DB
+from app.core.data import clean
 from app.core.db import get_db
 from app.core.limiter import limiter
 from app.main import app
@@ -182,6 +184,13 @@ def valid_customer() -> dict:
 @pytest.fixture
 def raw_customers() -> pd.DataFrame:
     return make_raw_customers()
+
+
+@pytest.fixture
+def exported_customers(raw_customers: pd.DataFrame) -> pd.DataFrame:
+    """The same data in the shape GET /data/export returns."""
+    cleaned = clean(raw_customers)
+    return cleaned[list(FEATURE_TO_DB)].rename(columns=FEATURE_TO_DB).reset_index(names="customer_id")
 
 
 @pytest.fixture
