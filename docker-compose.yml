@@ -19,6 +19,26 @@ services:
     ports:
       - "6379:6379"
     
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: mlflow
+    env_file: .env
+    command: >
+      mlflow server
+      --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      --artifacts-destination /mlflow/artifacts
+      --serve-artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_artifacts:/mlflow/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api:
     build: .
     container_name: churn-api
@@ -34,8 +54,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    
+      mlflow:
+        condition: service_started
 
 volumes:
   pgdata:
   models:
+  mlflow_artifacts:

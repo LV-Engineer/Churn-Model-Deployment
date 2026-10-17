@@ -1,8 +1,11 @@
+import logging
 import uuid
 from datetime import UTC, datetime
 from io import BytesIO
 
 import joblib
+import mlflow
+import mlflow.sklearn
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sqlalchemy.orm import Session
@@ -21,6 +24,9 @@ from app.repositories.model import ModelRepository
 from app.core.train import fit_model
 from app.models.model import ModelRun
 from app.core.redis import redis_client
+from app.core.settings import settings
+
+logger = logging.getLogger(__name__)
 
 class ModelService:
     def __init__(self, db: Session) -> None:
@@ -50,9 +56,24 @@ class ModelService:
             roc_auc=auc,
             model_path=filename,
         ))
+        self._log_to_mlflow(run_id, pipeline, n_rows, auc)
         return TrainResponse(
             run_id=run.id, trained_at=run.trained_at, n_rows=run.n_rows, roc_auc=run.roc_auc
         )
+
+    @staticmethod
+    def _log_to_mlflow(run_id: uuid.UUID, pipeline: Pipeline, n_rows: int, auc: float) -> None:
+        """Log the run to MLflow; tracking problems must not break training."""
+        try:
+            mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
+            mlflow.set_experiment("churn-model")
+            with mlflow.start_run(run_name=str(run_id)):
+                mlflow.log_params(pipeline.named_steps["clf"].get_params())
+                mlflow.log_param("n_rows", n_rows)
+                mlflow.log_metric("roc_auc", auc)
+                mlflow.sklearn.log_model(pipeline, name="model")
+        except Exception:
+            logger.exception("MLflow logging failed, training result is kept")
 
     def predict(self, request: PredictionRequest) -> PredictionResponse:
         run = self._model_repo.get_latest()

@@ -12,4 +12,6 @@ class Settings(BaseSettings):
 
     redis_url: str
 
+    mlflow_tracking_uri: str
+
 settings = Settings() 
